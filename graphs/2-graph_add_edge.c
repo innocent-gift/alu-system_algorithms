@@ -3,7 +3,7 @@
 #include "graphs.h"
 
 /**
- * add_edge_to_vertex - Helper to append an edge to a vertex's edge list
+ * add_edge_to_vertex - Appends an edge to the end of a vertex's adjacency list
  * @vertex: Pointer to the vertex
  * @dest_v: Pointer to the destination vertex
  * Return: 1 on success, 0 on failure
@@ -37,7 +37,7 @@ return (1);
  * graph_add_edge - Adds an edge between two vertices to a graph
  * @graph: Pointer to the graph
  * @src: Content of the source vertex
- * @dest: Pointer to the destination vertex content
+ * @dest: Content of the destination vertex
  * @type: Type of edge (UNIDIRECTIONAL or BIDIRECTIONAL)
  * Return: 1 on success, 0 on failure
  */
