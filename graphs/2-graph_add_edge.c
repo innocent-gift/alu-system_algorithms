@@ -3,71 +3,71 @@
 #include "graphs.h"
 
 /**
- * add_single_edge - Adds a directed edge from src to dest
- * @src: Source vertex
- * @dest: Destination vertex
- *
+ * add_edge_to_vertex - Helper to append an edge to a vertex's edge list
+ * @vertex: Pointer to the vertex
+ * @dest_v: Pointer to the destination vertex
  * Return: 1 on success, 0 on failure
  */
-static int add_single_edge(vertex_t *src, vertex_t *dest)
+static int add_edge_to_vertex(vertex_t *vertex, vertex_t *dest_v)
 {
-edge_t *new_edge, *tmp;
-
-tmp = src->edges;
-while (tmp)
-{
-if (tmp->dest == dest)
-return (1);
-tmp = tmp->next;
-}
+edge_t *new_edge, *temp;
 
 new_edge = malloc(sizeof(edge_t));
 if (!new_edge)
 return (0);
+new_edge->dest = dest_v;
+new_edge->next = NULL;
 
-new_edge->dest = dest;
-new_edge->next = src->edges;
-src->edges = new_edge;
-src->nb_edges++;
+if (!vertex->edges)
+{
+vertex->edges = new_edge;
+}
+else
+{
+temp = vertex->edges;
+while (temp->next)
+temp = temp->next;
+temp->next = new_edge;
+}
+vertex->nb_edges++;
 return (1);
 }
 
 /**
- * graph_add_edge - Adds an edge between two vertices to an existing graph
+ * graph_add_edge - Adds an edge between two vertices to a graph
  * @graph: Pointer to the graph
- * @src: String identifying source vertex
- * @dest: String identifying destination vertex
- * @type: UNIDIRECTIONAL or BIDIRECTIONAL
- *
+ * @src: Content of the source vertex
+ * @dest: Pointer to the destination vertex content
+ * @type: Type of edge (UNIDIRECTIONAL or BIDIRECTIONAL)
  * Return: 1 on success, 0 on failure
  */
 int graph_add_edge(graph_t *graph, const char *src, const char *dest,
    edge_type_t type)
 {
-vertex_t *v_src = NULL, *v_dest = NULL, *v;
+vertex_t *src_v = NULL, *dest_v = NULL, *temp;
 
 if (!graph || !src || !dest)
 return (0);
 
-v = graph->vertices;
-while (v && (!v_src || !v_dest))
+temp = graph->vertices;
+while (temp)
 {
-if (strcmp(v->content, src) == 0)
-v_src = v;
-if (strcmp(v->content, dest) == 0)
-v_dest = v;
-v = v->next;
+if (strcmp(temp->content, src) == 0)
+src_v = temp;
+if (strcmp(temp->content, dest) == 0)
+dest_v = temp;
+temp = temp->next;
 }
 
-if (!v_src || !v_dest)
+if (!src_v || !dest_v)
 return (0);
 
-if (!add_single_edge(v_src, v_dest))
+if (!add_edge_to_vertex(src_v, dest_v))
 return (0);
 
 if (type == BIDIRECTIONAL)
 {
-if (!add_single_edge(v_dest, v_src))
+if (!add_edge_to_vertex(dest_v, src_v))
 return (0);
 }
 
