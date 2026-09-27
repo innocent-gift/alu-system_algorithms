@@ -6,7 +6,7 @@
  * symbol_cmp - Compares frequencies of two symbols stored in nested nodes
  * @p1: Pointer to first nested node
  * @p2: Pointer to second nested node
- * Return: Difference between frequencies
+ * Return: Negative if p1 < p2, positive if p1 > p2, 0 if equal
  */
 int symbol_cmp(void *p1, void *p2)
 {
@@ -17,7 +17,12 @@ int symbol_cmp(void *p1, void *p2)
 	n2 = (binary_tree_node_t *)p2;
 	s1 = (symbol_t *)n1->data;
 	s2 = (symbol_t *)n2->data;
-	return ((int)(s1->freq - s2->freq));
+
+	if (s1->freq < s2->freq)
+		return (-1);
+	if (s1->freq > s2->freq)
+		return (1);
+	return (0);
 }
 
 /**
