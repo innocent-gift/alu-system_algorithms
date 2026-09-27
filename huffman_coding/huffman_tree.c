@@ -5,42 +5,32 @@
 /**
  * huffman_tree - Builds the Huffman tree
  * @data: Array of characters
- * @freq: Array of frequencies
+ * @freq: Array of associated frequencies
  * @size: Size of arrays
- * Return: Pointer to root node of Huffman tree, or NULL on failure
+ * Return: Pointer to the root node of the Huffman tree, or NULL on failure
  */
 binary_tree_node_t *huffman_tree(char *data, size_t *freq, size_t size)
 {
-	heap_t *pq;
-	binary_tree_node_t *wrapper, *root;
+	heap_t *prio_queue;
+	binary_tree_node_t *root;
 
 	if (data == NULL || freq == NULL || size == 0)
 		return (NULL);
 
-	pq = huffman_priority_queue(data, freq, size);
-	if (pq == NULL)
+	prio_queue = huffman_priority_queue(data, freq, size);
+	if (prio_queue == NULL)
 		return (NULL);
 
-	while (pq->size > 1)
+	while (prio_queue->size > 1)
 	{
-		if (!huffman_extract_and_insert(pq))
+		if (!huffman_extract_and_insert(prio_queue))
 		{
-			heap_delete(pq, NULL);
+			heap_delete(prio_queue, (void (*)(void *))free);
 			return (NULL);
 		}
 	}
 
-	wrapper = (binary_tree_node_t *)heap_extract(pq);
-	if (wrapper == NULL)
-	{
-		heap_delete(pq, NULL);
-		return (NULL);
-	}
-
-	root = (binary_tree_node_t *)wrapper->data;
-	root->parent = NULL;
-	free(wrapper);
-	heap_delete(pq, NULL);
-
+	root = heap_extract(prio_queue);
+	heap_delete(prio_queue, NULL);
 	return (root);
 }

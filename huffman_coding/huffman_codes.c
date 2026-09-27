@@ -4,41 +4,41 @@
 #include "huffman.h"
 
 /**
- * print_codes_recursive - Recursively traverses tree to print Huffman codes
- * @node: Current node
- * @buffer: Buffer to store code
- * @depth: Current depth in tree
+ * build_codes - Recursive helper to traverse tree and print codes
+ * @node: Pointer to current node
+ * @buffer: Buffer storing current code string
+ * @depth: Current depth/length of code
  */
-static void print_codes_recursive(binary_tree_node_t *node, char *buffer, int depth)
+static void build_codes(binary_tree_node_t *node, char *buffer, int depth)
 {
-	symbol_t *symbol;
+	symbol_t *sym;
 
 	if (node == NULL)
 		return;
 
 	if (node->left == NULL && node->right == NULL)
 	{
-		symbol = (symbol_t *)node->data;
+		sym = (symbol_t *)node->data;
 		buffer[depth] = '\0';
-		printf("%c: %s\n", symbol->data, buffer);
+		printf("%c: %s\n", sym->data, buffer);
 		return;
 	}
 
 	if (node->left)
 	{
 		buffer[depth] = '0';
-		print_codes_recursive(node->left, buffer, depth + 1);
+		build_codes(node->left, buffer, depth + 1);
 	}
 	if (node->right)
 	{
 		buffer[depth] = '1';
-		print_codes_recursive(node->right, buffer, depth + 1);
+		build_codes(node->right, buffer, depth + 1);
 	}
 }
 
 /**
- * free_huffman_tree - Frees Huffman tree nodes and symbol structures
- * @node: Root node
+ * free_huffman_tree - Frees the Huffman tree nodes and symbols
+ * @node: Pointer to root of tree
  */
 static void free_huffman_tree(binary_tree_node_t *node)
 {
@@ -54,7 +54,7 @@ static void free_huffman_tree(binary_tree_node_t *node)
 /**
  * huffman_codes - Builds Huffman tree and prints codes for each symbol
  * @data: Array of characters
- * @freq: Array of frequencies
+ * @freq: Array of associated frequencies
  * @size: Size of arrays
  * Return: 1 on success, 0 on failure
  */
@@ -67,7 +67,7 @@ int huffman_codes(char *data, size_t *freq, size_t size)
 	if (root == NULL)
 		return (0);
 
-	print_codes_recursive(root, buffer, 0);
+	build_codes(root, buffer, 0);
 	free_huffman_tree(root);
 	return (1);
 }

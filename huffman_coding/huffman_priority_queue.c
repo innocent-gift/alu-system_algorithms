@@ -44,7 +44,9 @@ heap_t *huffman_priority_queue(char *data, size_t *freq, size_t size)
 
 	heap = heap_create(symbol_cmp);
 	if (heap == NULL)
+	{
 		return (NULL);
+	}
 
 	for (i = 0; i < size; i++)
 	{
