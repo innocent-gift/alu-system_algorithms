@@ -2,26 +2,59 @@
 #include "heap.h"
 
 /**
- * get_parent_node - Finds the parent node where a new node should be inserted
- * @root: Root of the heap
- * @size: Current size of the heap
- * Return: Pointer to the parent node
+ * get_parent_path - Gets the path to the insertion node using binary representation
+ * @size: Current size of the heap before insertion
+ * Return: Bitmask representing the path (left = 0, right = 1)
  */
-static binary_tree_node_t *get_parent_node(binary_tree_node_t *root, size_t size)
+static unsigned int get_parent_path(size_t size)
 {
-	size_t path, mask;
-	binary_tree_node_t *curr;
+	size_t node = size + 1;
+	unsigned int path = 0;
+	unsigned int mask = 1;
 
-	if (root == NULL || size == 0)
+	while (node > 1)
+	{
+		if (node & 1)
+			path |= mask;
+		mask <<= 1;
+		node >>= 1;
+	}
+	return (path);
+}
+
+/**
+ * heap_insert - Inserts a value in a Min Binary Heap
+ * @heap: Pointer to the heap
+ * @data: Pointer to data to store
+ * Return: Pointer to created node, or NULL on failure
+ */
+binary_tree_node_t *heap_insert(heap_t *heap, void *data)
+{
+	binary_tree_node_t *node, *curr;
+	unsigned int path, mask;
+	void *temp_data;
+
+	if (heap == NULL || data == NULL)
 		return (NULL);
 
-	path = size + 1;
-	mask = 1;
-	while (mask <= path)
-		mask <<= 1;
-	mask >>= 2;
+	node = binary_tree_node(NULL, data);
+	if (node == NULL)
+		return (NULL);
 
-	curr = root;
+	if (heap->root == NULL)
+	{
+		heap->root = node;
+		heap->size++;
+		return (node);
+	}
+
+	path = get_parent_path(heap->size);
+	curr = heap->root;
+	mask = 1;
+	while (mask < path)
+		mask <<= 1;
+	mask >>= 1;
+
 	while (mask > 0)
 	{
 		if (path & mask)
@@ -30,46 +63,24 @@ static binary_tree_node_t *get_parent_node(binary_tree_node_t *root, size_t size
 			curr = curr->left;
 		mask >>= 1;
 	}
-	return (curr);
-}
 
-/**
- * heap_insert - Inserts a value in a Min Binary Heap
- * @heap: Pointer to the heap
- * @data: Pointer to the data to store
- * Return: Pointer to the created node, or NULL on failure
- */
-binary_tree_node_t *heap_insert(heap_t *heap, void *data)
-{
-	binary_tree_node_t *parent, *node;
-	void *tmp;
-
-	if (heap == NULL || data == NULL)
-		return (NULL);
-	if (heap->root == NULL)
-	{
-		heap->root = binary_tree_node(NULL, data);
-		if (heap->root == NULL)
-			return (NULL);
-		heap->size = 1;
-		return (heap->root);
-	}
-	parent = get_parent_node(heap->root, heap->size);
-	node = binary_tree_node(parent, data);
-	if (node == NULL)
-		return (NULL);
-	if (parent->left == NULL)
-		parent->left = node;
+	node->parent = curr;
+	if (curr->left == NULL)
+		curr->left = node;
 	else
-		parent->right = node;
+		curr->right = node;
+
 	heap->size++;
 
-	while (node->parent && heap->data_cmp(node->data, node->parent->data) < 0)
+	curr = node;
+	while (curr->parent && heap->data_cmp(curr->data, curr->parent->data) < 0)
 	{
-		tmp = node->data;
-		node->data = node->parent->data;
-		node->parent->data = tmp;
-		node = node->parent;
+		temp_data = curr->data;
+		curr->data = curr->parent->data;
+		curr->parent->data = temp_data;
+		curr = curr->parent;
 	}
-	return (node);
+
+	free(node);
+	return (curr);
 }
